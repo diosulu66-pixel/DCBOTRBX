@@ -93,19 +93,19 @@ def check_permissions_and_channel(ctx):
         
     # 2. Verificar canal (solo si estamos en un servidor)
     if not is_dm and db["allowed_channel"] and ctx.channel.id != db["allowed_channel"]:
-        return False, "❌ El bot no se puede usar en este canal."
+        return False, " El bot no se puede usar en este canal."
         
     # 3. Verificar usuario en whitelist
     user_id_str = str(ctx.author.id)
     if user_id_str not in db["whitelisted_users"]:
-        return False, "❌ No estás en la whitelist para usar este bot."
+        return False, " No estás en la whitelist para usar este bot."
         
     user_data = db["whitelisted_users"][user_id_str]
     
     # 4. Verificar expiración del usuario
     if user_data.get("expiry") is not None:
         if time.time() > user_data["expiry"]:
-            return False, "❌ Tu acceso a la whitelist ha expirado."
+            return False, " Tu acceso a la whitelist ha expirado."
             
     # 5. Verificar cooldown
     cooldown_time = user_data.get("cooldown", db["default_cooldown"])
@@ -140,9 +140,9 @@ async def clonar(ctx, asset_id: int):
 
     if error is not None:
         try:
-            await msg.edit(content=f"❌ **Error al clonar el ID {asset_id}:**\n{error}")
+            await msg.edit(content=f" **Error al clonar el ID {asset_id}:**\n{error}")
         except discord.errors.NotFound:
-            await ctx.send(f"❌ **Error al clonar el ID {asset_id}:**\n{error}")
+            await ctx.send(f" **Error al clonar el ID {asset_id}:**\n{error}")
         return
 
     if img_bytes is not None:
@@ -222,7 +222,7 @@ async def setusercooldown(ctx, user_id: int, cooldown: int):
         save_db()
         await ctx.send(f"✅ Cooldown del usuario `{user_id}` configurado a {cooldown} segundos.")
     else:
-        await ctx.send("⚠️ El usuario no está en la whitelist.")
+        await ctx.send("El usuario no está en la whitelist.")
 
 @bot.command(name='addserver')
 @commands.check(is_admin)
@@ -231,9 +231,9 @@ async def addserver(ctx, server_id: int):
     if server_id not in db["whitelisted_servers"]:
         db["whitelisted_servers"].append(server_id)
         save_db()
-        await ctx.send(f"✅ Servidor `{server_id}` agregado a la whitelist.")
+        await ctx.send(f" Servidor `{server_id}` agregado a la whitelist.")
     else:
-        await ctx.send("⚠️ El servidor ya estaba en la whitelist.")
+        await ctx.send("El servidor ya estaba en la whitelist.")
 
 @bot.command(name='removeserver')
 @commands.check(is_admin)
@@ -242,13 +242,13 @@ async def removeserver(ctx, server_id: int):
     if server_id in db["whitelisted_servers"]:
         db["whitelisted_servers"].remove(server_id)
         save_db()
-        await ctx.send(f"✅ Servidor `{server_id}` eliminado de la whitelist.")
+        await ctx.send(f" Servidor `{server_id}` eliminado de la whitelist.")
         # Si el bot está actualmente en ese servidor, salirse
         guild = bot.get_guild(server_id)
         if guild:
             await guild.leave()
     else:
-        await ctx.send("⚠️ El servidor no estaba en la whitelist.")
+        await ctx.send(" El servidor no estaba en la whitelist.")
 
 @bot.command(name='setidchannel')
 @commands.check(is_admin)
@@ -256,19 +256,19 @@ async def setidchannel(ctx, channel_id: int = 0):
     """Configura en qué canal debe usarse el bot. Usa 0 para permitir en todos los canales."""
     if channel_id == 0:
         db["allowed_channel"] = None
-        await ctx.send("✅ Ahora el bot se puede usar en cualquier canal.")
+        await ctx.send(" Ahora el bot se puede usar en cualquier canal.")
     else:
         db["allowed_channel"] = channel_id
-        await ctx.send(f"✅ Canal de uso configurado a: `<#{channel_id}>`")
+        await ctx.send(f"Canal de uso configurado a: `<#{channel_id}>`")
     save_db()
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        await ctx.send("❌ No tienes permisos de administrador para usar este comando.", delete_after=5)
+        await ctx.send(" No tienes permisos de administrador para usar este comando.", delete_after=5)
 
 if __name__ == '__main__':
     if not TOKEN or TOKEN == "TU_DISCORD_TOKEN_AQUI":
-        print("❌ ERROR: No se ha configurado el DISCORD_TOKEN en las variables de entorno")
+        print(" ERROR: No se ha configurado el DISCORD_TOKEN en las variables de entorno")
     else:
         bot.run(TOKEN)

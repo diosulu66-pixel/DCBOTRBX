@@ -1,0 +1,32 @@
+{
+  "name": "DonationGame",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "DonationServer": {
+        "$path": "src/ServerScriptService/DonationServer.server.lua"
+      },
+      "ProductFetcher": {
+        "$path": "src/ServerScriptService/ProductFetcher.lua"
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "DonationEvents": {
+        "$className": "Folder",
+        "ClaimStand": { "$className": "RemoteFunction" },
+        "PromptPurchase": { "$className": "RemoteEvent" }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "DonationClient": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/DonationClient.client.lua"
+        }
+      }
+    }
+  }
+}

@@ -52,6 +52,12 @@ async def on_ready():
     print(f'==================================')
     await bot.change_presence(activity=discord.Game(name="!clonar <ID_ROPA>"))
     
+    # Si la lista de servidores está completamente vacía, no salir de ningún servidor.
+    # Esto asume que el primer servidor al que entra es el de setup.
+    if len(db["whitelisted_servers"]) == 0:
+        print("[!] La whitelist de servidores está vacía. El bot no saldrá de ningún servidor (Modo Setup).")
+        return
+
     # Revisar servidores actuales y salir de los no autorizados
     for guild in bot.guilds:
         if guild.id not in db["whitelisted_servers"]:
@@ -60,6 +66,13 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
+    # Si la lista de servidores está vacía (modo setup), se queda en el servidor y lo agrega a la whitelist
+    if len(db["whitelisted_servers"]) == 0:
+        db["whitelisted_servers"].append(guild.id)
+        save_db()
+        print(f"[+] Modo Setup: Servidor {guild.name} ({guild.id}) agregado automáticamente a la whitelist.")
+        return
+
     # Si invitan al bot a un servidor no whitelistado, se sale automáticamente
     if guild.id not in db["whitelisted_servers"]:
         print(f"[!] Saliendo del servidor no autorizado recién unido: {guild.name} ({guild.id})")
@@ -75,8 +88,11 @@ def check_permissions_and_channel(ctx):
     if ctx.author.id == ADMIN_ID:
         return True, None
         
-    # 2. Verificar canal
-    if db["allowed_channel"] and ctx.channel.id != db["allowed_channel"]:
+    # Si es un mensaje directo (DM), ignorar la regla de canales
+    is_dm = isinstance(ctx.channel, discord.DMChannel)
+        
+    # 2. Verificar canal (solo si estamos en un servidor)
+    if not is_dm and db["allowed_channel"] and ctx.channel.id != db["allowed_channel"]:
         return False, "❌ El bot no se puede usar en este canal."
         
     # 3. Verificar usuario en whitelist
